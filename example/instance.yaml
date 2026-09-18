@@ -1,0 +1,24 @@
+apiVersion: compute.cloud.com/v1
+kind: EC2Instance
+metadata:
+  name: kubernetes-object-for-ec2
+  namespace: default
+spec:
+  amiId: mydummyamiId
+  sshKey: my-keypair
+  instanceType: t3.micro
+  instanceName: myinstance
+  subnetId: subnet-0123456789abcdef0
+  tags:
+    Name: myinstance
+    Environment: dev
+  storage:
+    size: 10Gi
+    Type: gp3
+  additionalStorage:
+    - size: 10Gi
+      Type: io2
+status:
+  phase: Running
+  instanceId: i-0123456789abcdef0
+  publicIp: 1.2.3.4

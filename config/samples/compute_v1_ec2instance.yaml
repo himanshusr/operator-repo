@@ -1,0 +1,22 @@
+apiVersion: compute.cloud.com/v1
+kind: EC2Instance
+metadata:
+  labels:
+    app.kubernetes.io/name: operator
+    app.kubernetes.io/managed-by: kustomize
+  name: ec2instance-sample
+spec:
+  amiId: ami-0123456789abcdef0
+  sshKey: my-keypair
+  instanceType: t3.micro
+  instanceName: ec2instance-sample
+  subnetId: subnet-0123456789abcdef0
+  tags:
+    Name: ec2instance-sample
+    Environment: dev
+  storage:
+    size: 10Gi
+    volumeType: gp3
+  additionalStorage:
+    - size: 20Gi
+      volumeType: gp3

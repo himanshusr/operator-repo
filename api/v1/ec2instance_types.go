@@ -1,0 +1,138 @@
+/*
+Copyright 2026.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+// apiVersion: compute.cloud.com/v1
+// kind: EC2Instance
+// metadata:
+//   name: myinstance
+//   namespace: default
+// spec:
+//   amiId: mydummyamiId
+//   sshKey: my-keypair
+//   instanceType: t3.micro
+//   subnetId: subnet-0123456789abcdef0
+//   tags:
+//     Name: myinstance
+//     Environment: dev
+//   storage:
+//     size: 10Gi
+//     volumeType: gp3
+//   additionalStorage:
+//     - size: 10Gi
+//       volumeType: io2
+// status:
+//   phase: Running
+//   instanceId: i-0123456789abcdef0
+//   publicIp: 1.2.3.4
+
+package v1
+
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+)
+
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+
+// EC2InstanceSpec defines the desired state of EC2Instance
+type EC2InstanceSpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+	// The following markers will use OpenAPI v3 schema to validate the value
+	// More info: https://book.kubebuilder.io/reference/markers/crd-validation.html
+
+	// foo is an example field of EC2Instance. Edit ec2instance_types.go to remove/update
+	// +optional
+	InstanceType       string            `json:"instanceType"`
+	AmiId              string            `json:"amiId"`
+	Region             string            `json:"region"`
+	AvailabilityZone   string            `json:"availabilityZone,omitempty"`
+	KeyPair            string            `json:"keyPair,omitempty"`
+	SecurityGroups     []string          `json:"securityGroups,omitempty"`
+	Subnet             string            `json:"subnet,omitempty"`
+	Userdata           string            `json:"userdata,omitempty"`
+	Storage            StorageConfig     `json:"storage,omitempty"`
+	Tags               map[string]string `json:"tags,omitempty"`
+	AssociatedPublicIp bool              `json:"associatedPublicIp,omitempty"`
+}
+
+type StorageConfig struct {
+	RootVolume        VolumeConfig   `json:"rootVolume,omitempty"`
+	AdditionalVolumes []VolumeConfig `json:"additionalVolumes,omitempty"`
+}
+
+type VolumeConfig struct {
+	Size       string `json:"size,omitempty"`
+	Type       string `json:"Type,omitempty"`
+	DeviceName string `json:"deviceName,omitempty"`
+	Encrypted  bool   `json:"encrypted,omitempty"`
+}
+
+// EC2InstanceStatus defines the observed state of EC2Instance.
+type EC2InstanceStatus struct {
+	InstanceId string `json:"instanceId,omitempty"`
+	State      string `json:"state,omitempty"`
+	PublicIp   string `json:"publicIp,omitempty"`
+	PrivateIp  string `json:"privateIp,omitempty"`
+	PublicDns  string `json:"publicDns,omitempty"`
+	PrivateDns string `json:"privateDns,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+
+// EC2Instance is the Schema for the ec2instances API
+type EC2Instance struct {
+	metav1.TypeMeta `json:",inline"`
+
+	// metadata is a standard object metadata
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitzero"`
+
+	// spec defines the desired state of EC2Instance
+	// +required
+	Spec EC2InstanceSpec `json:"spec"`
+
+	// status defines the observed state of EC2Instance
+	// +optional
+	Status EC2InstanceStatus `json:"status,omitzero"`
+}
+
+// +kubebuilder:object:root=true
+
+// EC2InstanceList contains a list of EC2Instance
+type EC2InstanceList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitzero"`
+	Items           []EC2Instance `json:"items"`
+}
+
+type CreatedInstanceInfo struct {
+	InstanceId string `json:"instanceId"`
+	State      string `json:"state"`
+	PublicIp   string `json:"publicIp"`
+	PrivateIp  string `json:"privateIp"`
+	PublicDns  string `json:"publicDns"`
+	PrivateDns string `json:"privateDns"`
+}
+
+func init() {
+	SchemeBuilder.Register(func(s *runtime.Scheme) error {
+		s.AddKnownTypes(SchemeGroupVersion, &EC2Instance{}, &EC2InstanceList{})
+		return nil
+	})
+}
